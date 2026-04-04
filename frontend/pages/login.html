@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+body { margin:0; overflow:hidden; }
+
+canvas {
+    position: fixed;
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+.main { position: relative; z-index:10; }
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 SAME 3D BACKGROUND -->
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const cubes = [];
+for(let i=0;i<500;i++){
+    const cube = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3,0.3,0.3),
+        new THREE.MeshBasicMaterial({ color:0x00ffff, wireframe:true })
+    );
+    cube.position.set(
+        (Math.random()-0.5)*20,
+        (Math.random()-0.5)*20,
+        (Math.random()-0.5)*20
+    );
+    scene.add(cube);
+    cubes.push(cube);
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+    cubes.forEach(c=>{
+        c.rotation.x+=0.01;
+        c.rotation.y+=0.01;
+        c.position.z+=0.05;
+        if(c.position.z>5) c.position.z=-20;
+    });
+    renderer.render(scene,camera);
+}
+animate();
+</script>
+
+<!-- UI -->
+<div class="main flex items-center justify-center min-h-screen">
+
+<div class="w-[420px] p-8 rounded-2xl text-white 
+bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
+
+<h2 class="text-3xl font-bold mb-2">Welcome Back</h2>
+<p class="text-white/60 mb-6">Sign in to continue your architectural journey.</p>
+
+<!-- EMAIL -->
+<label class="text-sm text-white/60">Email Address</label>
+<div class="flex items-center bg-white/5 border border-white/10 rounded-xl mt-2 mb-4 px-3">
+<span class="mr-2">📧</span>
+<input type="email" placeholder="name@architect.com"
+class="w-full bg-transparent p-3 outline-none text-white placeholder:text-white/40"/>
+</div>
+
+<!-- PASSWORD -->
+<div class="flex justify-between items-center">
+<label class="text-sm text-white/60">Password</label>
+<a href="#" class="text-cyan-400 text-sm">Forgot Password?</a>
+</div>
+
+<div class="flex items-center bg-white/5 border border-white/10 rounded-xl mt-2 mb-4 px-3">
+<span class="mr-2">🔒</span>
+<input type="password" placeholder="••••••••"
+class="w-full bg-transparent p-3 outline-none text-white placeholder:text-white/40"/>
+<span>👁️</span>
+</div>
+
+<!-- REMEMBER -->
+<label class="flex items-center text-sm text-white/60 mb-6">
+<input type="checkbox" class="mr-2"> Keep me logged in
+</label>
+
+<!-- BUTTON -->
+<button class="w-full py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 font-bold text-white hover:scale-105 transition">
+Sign In →
+</button>
+
+<!-- FOOTER -->
+<p class="text-center text-sm text-white/60 mt-6">
+Don't have an account?
+<a href="register.html" class="text-cyan-400 font-semibold">Sign Up</a>
+</p>
+
+</div>
+
+</div>
+helo
+</body>
+</html>
