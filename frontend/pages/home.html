@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MidnightMarket</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+body { margin:0; background:black; font-family:Inter; }
+
+canvas {
+    position: fixed;
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+.main { position:relative; z-index:10; }
+
+.glass {
+    background: linear-gradient(135deg, rgba(0,255,255,0.08), rgba(0,0,0,0.5));
+    backdrop-filter: blur(20px);
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+.navBtn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    transition: 0.3s;
+}
+
+.navBtn:hover {
+    background: rgba(0,255,255,0.15);
+    color:#00ffff;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 3D BACKGROUND -->
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+camera.position.z = 6;
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const cubes=[];
+for(let i=0;i<150;i++){
+    const c=new THREE.Mesh(
+        new THREE.BoxGeometry(0.6,0.6,0.6),
+        new THREE.MeshBasicMaterial({color:0x00ffff,wireframe:true})
+    );
+    c.position.set(
+        (Math.random()-0.5)*25,
+        (Math.random()-0.5)*25,
+        (Math.random()-0.5)*25
+    );
+    scene.add(c);
+    cubes.push(c);
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+    cubes.forEach(function(c){
+        c.rotation.x+=0.01;
+        c.rotation.y+=0.01;
+        c.position.z+=0.05;
+        if(c.position.z>6) c.position.z=-25;
+    });
+    renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener("resize",function(){
+    renderer.setSize(innerWidth,innerHeight);
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+});
+</script>
+
+<!-- MAIN -->
+<div class="main p-6">
+
+<!-- 🔥 NAVBAR -->
+<div class="glass flex items-center justify-between px-6 py-3 rounded-xl mb-8">
+
+    <!-- LOGO -->
+    <h1 class="text-2xl text-cyan-400 font-bold">MidnightMarket</h1>
+
+    <!-- SEARCH -->
+    <input type="text" placeholder="Search..."
+    class="w-40 px-3 py-1 rounded-full bg-white/10 text-white text-sm outline-none">
+
+    <!-- NAV ITEMS -->
+    <div class="flex items-center gap-3 text-white/80">
+
+        <a href="home.html" class="navBtn">Home</a>
+        <a href="add-item.html" class="navBtn">Add Item</a>
+
+        <!-- PROFILE BUTTON -->
+        <span id="profileBtn"></span>
+
+        <!-- USER NAME / LOGIN -->
+        <span id="userArea"></span>
+
+    </div>
+
+</div>
+
+<!-- PRODUCTS -->
+<div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+
+// 🔥 USER SYSTEM
+function loadUser(){
+
+    var user = JSON.parse(localStorage.getItem("user"));
+
+    var userBox = document.getElementById("userArea");
+    var profileBox = document.getElementById("profileBtn");
+
+    if(user && user.name){
+
+        // PROFILE BUTTON
+        profileBox.innerHTML =
+        '<a href="profile.html" class="navBtn">Profile</a>';
+
+        // USER NAME (HIGHLIGHT)
+        userBox.innerHTML =
+        '<span class="px-3 py-1 rounded-full bg-cyan-400 text-black font-bold text-sm">' 
+        + user.name + 
+        '</span>';
+
+    } else {
+
+        profileBox.innerHTML = "";
+
+        userBox.innerHTML =
+        '<a href="login.html" class="navBtn">Login</a>';
+    }
+}
+
+// 🔥 PRODUCTS
+function loadProducts(){
+
+    var products = JSON.parse(localStorage.getItem("products")) || [];
+    var container = document.getElementById("products");
+
+    container.innerHTML = "";
+
+    if(products.length === 0){
+        container.innerHTML =
+        '<p class="text-white/50 col-span-full text-center text-lg">No items available 🚀</p>';
+        return;
+    }
+
+    for(var i=0;i<products.length;i++){
+
+        var p = products[i];
+
+        container.innerHTML +=
+        '<div class="glass p-4 rounded-xl hover:scale-105 transition">' +
+
+            '<img src="'+p.image+'" class="h-40 w-full object-cover rounded mb-3">' +
+
+            '<h2 class="text-white font-bold">'+p.title+'</h2>' +
+            '<p class="text-gray-400">₹'+p.price+'</p>' +
+
+            '<button onclick="deleteItem('+i+')" class="mt-3 w-full bg-red-500 py-2 rounded-lg">Delete</button>' +
+
+        '</div>';
+    }
+}
+
+// DELETE
+function deleteItem(index){
+    var products = JSON.parse(localStorage.getItem("products")) || [];
+    products.splice(index,1);
+    localStorage.setItem("products", JSON.stringify(products));
+    loadProducts();
+}
+
+// INIT
+loadUser();
+loadProducts();
+
+</script>
+
+</body>
+</html>

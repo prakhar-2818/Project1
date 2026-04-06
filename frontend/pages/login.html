@@ -23,7 +23,7 @@ canvas {
 
 <body>
 
-<!-- 🔥 SAME 3D BACKGROUND -->
+<!-- 🔥 3D BACKGROUND -->
 <script>
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
@@ -74,7 +74,7 @@ bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
 <label class="text-sm text-white/60">Email Address</label>
 <div class="flex items-center bg-white/5 border border-white/10 rounded-xl mt-2 mb-4 px-3">
 <span class="mr-2">📧</span>
-<input type="email" placeholder="name@architect.com"
+<input id="email" type="email" placeholder="name@architect.com"
 class="w-full bg-transparent p-3 outline-none text-white placeholder:text-white/40"/>
 </div>
 
@@ -86,7 +86,7 @@ class="w-full bg-transparent p-3 outline-none text-white placeholder:text-white/
 
 <div class="flex items-center bg-white/5 border border-white/10 rounded-xl mt-2 mb-4 px-3">
 <span class="mr-2">🔒</span>
-<input type="password" placeholder="••••••••"
+<input id="password" type="password" placeholder="••••••••"
 class="w-full bg-transparent p-3 outline-none text-white placeholder:text-white/40"/>
 <span>👁️</span>
 </div>
@@ -97,7 +97,8 @@ class="w-full bg-transparent p-3 outline-none text-white placeholder:text-white/
 </label>
 
 <!-- BUTTON -->
-<button class="w-full py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 font-bold text-white hover:scale-105 transition">
+<button onclick="login()" 
+class="w-full py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 font-bold text-white hover:scale-105 transition">
 Sign In →
 </button>
 
@@ -107,8 +108,37 @@ Don't have an account?
 <a href="register.html" class="text-cyan-400 font-semibold">Sign Up</a>
 </p>
 
-</div><heleo></heleo>
+</div>
 
 </div>
+
+<!-- 🔥 LOGIN SCRIPT -->
+<script>
+
+function login(){
+
+    var email = document.getElementById("email").value;
+    var password = document.getElementById("password").value;
+
+    if(!email || !password){
+        alert("Fill all fields");
+        return;
+    }
+
+    var name = email.split("@")[0];
+
+    // ✅ SAVE USER
+    localStorage.setItem("user", JSON.stringify({
+        name: name,
+        email: email
+    }));
+
+    alert("Login Successful 🚀");
+
+    window.location.href = "home.html";
+}
+
+</script>
+
 </body>
 </html>

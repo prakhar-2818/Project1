@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Add Item</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+body { margin:0; background:black; font-family:Inter; }
+
+canvas {
+    position: fixed;
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+.main { position:relative; z-index:10; }
+
+.glass {
+    background: linear-gradient(135deg, rgba(0,255,255,0.08), rgba(0,0,0,0.5));
+    backdrop-filter: blur(20px);
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+.input {
+    background: rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+}
+
+.input:focus,
+.input:hover {
+    background: rgba(0,255,255,0.08);
+    border:1px solid rgba(0,255,255,0.4);
+    box-shadow: 0 0 15px rgba(0,255,255,0.3);
+    outline: none;
+}
+
+select option {
+    background: #1c1b1b;   /* same as surface */
+    color: #e5e2e1;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- 🔥 SAME 3D BACKGROUND -->
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+camera.position.z = 6;
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const cubes=[];
+for(let i=0;i<150;i++){
+    const c=new THREE.Mesh(
+        new THREE.BoxGeometry(0.6,0.6,0.6),
+        new THREE.MeshBasicMaterial({color:0x00ffff,wireframe:true})
+    );
+    c.position.set(
+        (Math.random()-0.5)*25,
+        (Math.random()-0.5)*25,
+        (Math.random()-0.5)*25
+    );
+    scene.add(c);
+    cubes.push(c);
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+
+    cubes.forEach(c=>{
+        c.rotation.x+=0.01;
+        c.rotation.y+=0.01;
+        c.position.z+=0.05;
+        if(c.position.z>6) c.position.z=-25;
+    });
+
+    renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener("resize",()=>{
+    renderer.setSize(innerWidth,innerHeight);
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+});
+</script>
+
+<!-- MAIN -->
+<div class="main p-6">
+
+<div class="glass flex justify-between items-center px-6 py-4 rounded-xl mb-8">
+    <h1 class="text-2xl text-cyan-400 font-bold">MidnightMarket</h1>
+    <button onclick="goHome()" 
+class="px-5 py-2 rounded-full text-white font-medium
+bg-white/5 backdrop-blur-xl border border-white/10
+hover:bg-cyan-400/10 hover:border-cyan-400/40 
+hover:text-cyan-300 transition-all duration-300
+hover:shadow-[0_0_15px_rgba(0,255,255,0.4)]">
+
+Home
+
+</button>
+</div>
+
+<div class="max-w-4xl mx-auto glass p-8 rounded-2xl shadow-2xl">
+
+<h2 class="text-3xl font-bold mb-6 text-white">List Your Product</h2>
+
+<div class="grid md:grid-cols-2 gap-6">
+
+<!-- LEFT -->
+<div>
+
+<label class="text-sm text-white/60">Product Name</label>
+<input id="title" class="input w-full p-3 mb-4 rounded-xl text-white">
+
+<label class="text-sm text-white/60">Category</label>
+<select id="category" 
+class="input w-full p-3 mb-4 rounded-xl text-white 
+bg-white/5 backdrop-blur-xl border border-white/10
+focus:bg-cyan-400/10 focus:border-cyan-400/40">
+<option>Fashion</option>
+<option>Home</option>
+<option>Electronics</option>
+</select>
+
+<label class="text-sm text-white/60">Price</label>
+<input id="price" type="number" class="input w-full p-3 mb-4 rounded-xl text-white">
+
+<label class="text-sm text-white/60">Stock</label>
+<input id="stock" type="number" class="input w-full p-3 mb-4 rounded-xl text-white">
+
+</div>
+
+<!-- RIGHT -->
+<div>
+
+<label class="text-sm text-white/60">Upload Image</label>
+
+<!-- 🔥 SAME BOX = UPLOAD + PREVIEW -->
+<div id="uploadBox"
+class="h-40 bg-white/10 rounded flex items-center justify-center text-white/40 mb-4 cursor-pointer relative overflow-hidden">
+
+<span id="uploadText">Click to Upload</span>
+
+<input id="imageFile" type="file" accept="image/*"
+class="absolute inset-0 opacity-0 cursor-pointer">
+
+</div>
+
+<label class="text-sm text-white/60">Description</label>
+<textarea id="desc" rows="4" class="input w-full p-3 rounded-xl text-white"></textarea>
+
+</div>
+
+</div>
+
+<button onclick="submitItem()" 
+class="mt-6 w-full py-4 rounded-xl font-bold text-white 
+bg-gradient-to-r from-white/5 to-white/0 
+backdrop-blur-xl border border-white/10 
+hover:from-cyan-400/10 hover:to-blue-400/10 
+hover:border-cyan-400/40 
+transition-all duration-300 
+hover:shadow-[0_0_25px_rgba(0,255,255,0.5)]">
+
+Publish Product
+
+</button>
+
+</div>
+
+</div>
+
+<!-- SCRIPT -->
+<script>
+
+// 🔥 SAME BOX PREVIEW
+document.getElementById("imageFile").addEventListener("change",(e)=>{
+    const file = e.target.files[0];
+    const box = document.getElementById("uploadBox");
+
+    if(file){
+        const reader = new FileReader();
+
+        reader.onload = function(){
+            box.innerHTML = `
+            <img src="${reader.result}" class="h-full w-full object-cover">
+            <input id="imageFile" type="file" accept="image/*"
+            class="absolute inset-0 opacity-0 cursor-pointer">
+            `;
+        }
+
+        reader.readAsDataURL(file);
+    }
+});
+
+// SAVE
+function submitItem(){
+
+    const img = document.querySelector("#uploadBox img")?.src;
+
+    const product = {
+        title: document.getElementById("title").value,
+        category: document.getElementById("category").value,
+        price: document.getElementById("price").value,
+        stock: document.getElementById("stock").value,
+        image: img,
+        description: document.getElementById("desc").value
+    };
+
+    if(!product.title || !product.price || !product.image){
+        alert("Fill required fields");
+        return;
+    }
+
+    let products = JSON.parse(localStorage.getItem("products")) || [];
+    products.push(product);
+    localStorage.setItem("products", JSON.stringify(products));
+
+    alert("Product Added 🚀");
+    
+}
+
+function goHome(){
+    window.location.href="home.html";
+}
+
+</script>
+
+</body>
+</html>
